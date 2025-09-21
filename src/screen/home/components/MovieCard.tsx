@@ -122,14 +122,6 @@ const styles = StyleSheet.create({
     borderColor: "#FF8C00",
     borderRadius: 4,
     overflow: 'hidden',
-    shadowColor: "#FFF",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 5,
   },
   image: {
     width: 100,

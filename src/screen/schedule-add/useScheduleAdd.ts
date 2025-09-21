@@ -4,8 +4,10 @@ import {
   useQueryMovieScheduleById,
   useQueryUpdateMovieSchedules,
 } from "@/src/hooks/useQueryMoviesSchedules";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
 
 const useScheduleAdd = () => {
   const router = useRouter();
@@ -21,6 +23,47 @@ const useScheduleAdd = () => {
   const [date, setDate] = useState<Date>(new Date());
   const [isChecked, setIsChecked] = useState(false);
   const [calendarId, setCalendarId] = useState<string>('');
+  const [androidDate, setAndroidDate] = useState<Date>(new Date());
+  const [androidTime, setAndroidTime] = useState<Date>(new Date());
+
+  const openAndroidPicker = (mode: 'date' | 'time') => {
+    if (mode === 'date') {
+      DateTimePickerAndroid.open({
+        mode: 'date',
+        value: androidDate,
+        negativeButton: {
+          label: 'Voltar',
+        },
+        positiveButton: {
+          label: 'Salvar',
+        },
+        onChange: (_event, selectedDate) => {
+          setAndroidDate(selectedDate || new Date());
+        },
+        onTouchCancel: dismissAndroidPicker,
+      })
+    } else {
+      DateTimePickerAndroid.open({
+        mode: 'time',
+        value: androidTime,
+        negativeButton: {
+          label: 'Voltar',
+        },
+        positiveButton: {
+          label: 'Salvar',
+        },
+        onChange: (_event, selectedDate) => {
+          setAndroidTime(selectedDate || new Date());
+        },
+        onTouchCancel: dismissAndroidPicker,
+      })
+    }
+  }
+  
+  const dismissAndroidPicker = () => {
+    DateTimePickerAndroid.dismiss('date')
+    DateTimePickerAndroid.dismiss('time')
+  }
 
   const goBack = () => {
     router.back();
@@ -31,26 +74,36 @@ const useScheduleAdd = () => {
       setShowCalendarModal(true);
       return;
     }
+
+    let currentDate = date;
+    if (Platform.OS === 'android') {
+      const hour = androidTime.getHours();
+      const minute = androidTime.getMinutes();
+      const second = androidTime.getSeconds();
+      currentDate = new Date(androidDate.setHours(hour, minute, second));
+    }
+
     let eventId = schedule?.event_id || null;
     if (isChecked && calendarId) {
       if (eventId) {
         eventId = await updateEvent({
           id: eventId,
           calendarId: calendarId,
-          date: date,
+          date: currentDate,
         });
       } else {
         eventId = await createEvent({
           calendarId,
           title: `Assistir ${movieTitle}`,
-          date: date,
+          date: currentDate,
         });
       }
     }
+
     if (schedule?.id) {
       updateMovieSchedules({
         id: Number(schedule.id),
-        date: date.toISOString(),
+        date: currentDate.toISOString(),
         event_id: eventId,
         calendar_id: calendarId || null,
       });
@@ -58,11 +111,12 @@ const useScheduleAdd = () => {
       createMovieSchedules({
         movie_id: Number(movieId),
         movie_title: movieTitle as string,
-        date: date.toISOString(),
+        date: currentDate.toISOString(),
         event_id: eventId,
         calendar_id: calendarId || null,
       });
     }
+    
     router.back();
   }
 
@@ -70,6 +124,8 @@ const useScheduleAdd = () => {
     useCallback(() => {
       if (schedule && firstRender.current) {
         setDate(new Date(schedule.date));
+        setAndroidDate(new Date(schedule.date));
+        setAndroidTime(new Date(schedule.date));
         setIsChecked(schedule.event_id ? true : false);
         setCalendarId('');
         firstRender.current = false;
@@ -99,6 +155,8 @@ const useScheduleAdd = () => {
     date,
     isChecked,
     calendarId,
+    androidDate,
+    androidTime,
     goBack,
     handleCreateSchedule,
     setShowDateModal,
@@ -106,6 +164,7 @@ const useScheduleAdd = () => {
     setDate,
     setIsChecked,
     setCalendarId,
+    openAndroidPicker,
   };
 }
 

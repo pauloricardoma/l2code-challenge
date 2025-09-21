@@ -1,13 +1,17 @@
-import DateModal from "@/src/components/DateModal";
+import DateModalIOs from "@/src/components/DateModalIOs";
 import Header from "@/src/components/Header";
 import IconButton from "@/src/components/IconButton";
 import OptionsIOsModal from "@/src/components/OptionsIOsModal";
 import TextInputButton from "@/src/components/TextInputButton";
 import ThemedButton from "@/src/components/ThemedButton";
 import ThemeTextInput from "@/src/components/ThemeTextInput";
-import { formatLocalDateWithTime } from "@/src/utils/format-date";
+import {
+  formatLocalDate,
+  formatLocalDateWithTime,
+  formatLocalTime
+} from "@/src/utils/format-date";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useScheduleAdd from "./useScheduleAdd";
 
@@ -21,6 +25,8 @@ function ScheduleAddView() {
     date,
     isChecked,
     calendarId,
+    androidDate,
+    androidTime,
     goBack,
     handleCreateSchedule,
     setShowDateModal,
@@ -28,6 +34,7 @@ function ScheduleAddView() {
     setDate,
     setIsChecked,
     setCalendarId,
+    openAndroidPicker,
   } = useScheduleAdd();
 
   return (
@@ -42,18 +49,39 @@ function ScheduleAddView() {
           <Text style={styles.label}>Título:</Text>
           <ThemeTextInput
             editable={false}
-            placeholder="Data do último contato"
+            placeholder="Título do filme"
             value={movieTitle as string}
           />
         </View>
-        <View style={styles.formItem}>
-          <Text style={styles.label}>Data:</Text>
-          <TextInputButton
-            placeholder="Data do último contato"
-            value={formatLocalDateWithTime(date)}
-            onPress={() => setShowDateModal(true)}
-          />
-        </View>
+        {Platform.OS === 'ios' ? (
+          <View style={styles.formItem}>
+            <Text style={styles.label}>Data:</Text>
+            <TextInputButton
+              placeholder="Data do agendamento"
+              value={formatLocalDateWithTime(date)}
+              onPress={() => setShowDateModal(true)}
+            />
+          </View>
+        ) : (
+          <>
+            <View style={styles.formItem}>
+              <Text style={styles.label}>Data:</Text>
+              <TextInputButton
+                placeholder="Data do agendamento"
+                value={formatLocalDate(androidDate)}
+                onPress={() => openAndroidPicker('date')}
+              />
+            </View>
+            <View style={styles.formItem}>
+              <Text style={styles.label}>Hora:</Text>
+              <TextInputButton
+                placeholder="Hora do agendamento"
+                value={formatLocalTime(androidTime)}
+                onPress={() => openAndroidPicker('time')}
+              />
+            </View>
+          </>
+        )}
         <View style={styles.checkboxItem}>
           <IconButton
             icon={isChecked
@@ -72,7 +100,7 @@ function ScheduleAddView() {
       </View>
 
       {showDateModal && (
-        <DateModal
+        <DateModalIOs
           visible={showDateModal}
           value={date}
           onChange={(date) => setDate(date)}
@@ -80,17 +108,21 @@ function ScheduleAddView() {
         />
       )}
       {showCalendarModal && (
-        <OptionsIOsModal
-          visible={showCalendarModal}
-          value={calendarId}
-          onChange={(calendarId) => setCalendarId(calendarId as string)}
-          options={calendars.map((calendar) => ({
-            label: calendar.title,
-            value: calendar.id,
-          }))}
-          placeholder="Selecione um calendário"
-          onClose={() => setShowCalendarModal(false)}
-        />
+        <>
+          {Platform.OS === 'ios' && (
+            <OptionsIOsModal
+              visible={showCalendarModal}
+              value={calendarId}
+              onChange={(calendarId) => setCalendarId(calendarId as string)}
+              options={calendars.map((calendar) => ({
+                label: calendar.title,
+                value: calendar.id,
+              }))}
+              placeholder="Selecione um calendário"
+              onClose={() => setShowCalendarModal(false)}
+            />
+          )}
+        </>
       )}
     </SafeAreaView>
   )

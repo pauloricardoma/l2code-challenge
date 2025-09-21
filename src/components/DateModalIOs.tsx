@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
-import { Modal, Platform, StyleSheet, View } from "react-native";
+import { Modal, StyleSheet, View } from "react-native";
 import ThemedButton from "./ThemedButton";
 
 type DateModalProps = {
@@ -16,28 +16,6 @@ function DateModal({ visible, value, onChange, onClose }: DateModalProps) {
   const handleChange = () => {
     onChange(selectedDate);
     onClose();
-  }
-
-  if (Platform.OS === "android") {
-    return (
-      <DateTimePicker
-        display="spinner"
-        value={value || new Date()}
-        mode="datetime"
-        is24Hour={true}
-        textColor="#1D1D1D"
-        onChange={(event, selectedDate) => {
-          if (event.type === 'set') {
-            onChange(selectedDate || new Date());
-          }
-          onClose();
-        }}
-        // negativeButton={{label: 'Voltar', textColor: '#919191'}}
-        // positiveButton={{label: 'Salvar', textColor: '#1AA0F0'}}
-        minimumDate={new Date()}
-        onTouchCancel={onClose}
-      />
-    )
   }
 
   return (

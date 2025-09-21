@@ -66,14 +66,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     overflow: 'hidden',
     padding: 12,
-    shadowColor: "#FFF",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    elevation: 5,
   },
   titleContainer: {
     flex: 1,
