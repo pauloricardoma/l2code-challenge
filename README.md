@@ -117,7 +117,7 @@ src/
 │   ├── schedules.tsx      # Tela de agendamentos
 │   └── schedule-add.tsx   # Tela de adicionar agendamento
 ├── components/            # Componentes reutilizáveis
-│   ├── DateModal.tsx      # Modal para seleção de data
+│   ├── DateModalIOs.tsx   # Modal IOs para seleção de data
 │   ├── Header.tsx         # Cabeçalho das telas
 │   ├── IconButton.tsx     # Botão com ícone
 │   └── ...
